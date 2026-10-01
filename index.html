@@ -13,105 +13,161 @@
         body {
             margin: 0;
             min-height: 100vh;
+
             display: flex;
             justify-content: center;
             align-items: center;
+
             background: #222;
+
             font-family: Arial, sans-serif;
         }
 
         .walkman {
             width: 360px;
+
             padding: 20px;
+
             background: #d6d6d6;
+
             border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+
+            box-shadow:
+                0 15px 35px rgba(0, 0, 0, 0.5);
         }
 
         .title {
             text-align: center;
+
             font-size: 22px;
             font-weight: bold;
+
             margin-bottom: 18px;
+
             color: #222;
         }
 
+        /* 카세트가 들어가는 부분 */
         .cassette-slot {
             width: 100%;
             height: 190px;
+
             padding: 15px;
+
             background: #222;
+
             border-radius: 10px;
+
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
+        /* 카세트 */
         .cassette {
             position: relative;
+
             width: 260px;
             height: 150px;
+
             background: #111;
+
             border-radius: 8px;
+
             border: 3px solid #444;
+
             display: flex;
             justify-content: space-between;
             align-items: center;
+
             padding: 25px;
         }
 
+        /* 릴 */
         .reel {
             width: 58px;
             height: 58px;
+
             border-radius: 50%;
+
             background: #777;
+
             border: 8px solid #333;
+
             position: relative;
         }
 
         .reel::after {
             content: "";
+
             position: absolute;
+
             width: 12px;
             height: 12px;
+
             background: #222;
+
             border-radius: 50%;
+
             top: 50%;
             left: 50%;
+
             transform: translate(-50%, -50%);
         }
 
+        /* 카세트 라벨 */
         .tape-label {
             position: absolute;
+
             left: 50%;
             top: 50%;
+
             transform: translate(-50%, -50%);
+
             width: 105px;
+
             padding: 8px 4px;
+
             background: white;
+
             color: #111;
+
             text-align: center;
+
             font-size: 12px;
             font-weight: bold;
+
             border-radius: 3px;
+
             overflow: hidden;
+
             white-space: nowrap;
         }
 
+        /* 버튼 */
         .controls {
             margin-top: 20px;
+
             display: grid;
+
             grid-template-columns: 1fr 1fr;
+
             gap: 10px;
         }
 
         button {
             padding: 12px;
+
             border: none;
+
             border-radius: 8px;
+
             background: #333;
+
             color: white;
+
             font-size: 14px;
+
             cursor: pointer;
         }
 
@@ -119,6 +175,25 @@
             background: #555;
         }
 
+        /* 재생 버튼 */
+        .play {
+            background: #176b2c;
+        }
+
+        .play:hover {
+            background: #218c3d;
+        }
+
+        /* 정지 버튼 */
+        .stop {
+            background: #555;
+        }
+
+        .stop:hover {
+            background: #666;
+        }
+
+        /* EJECT */
         .eject {
             background: #8b2020;
         }
@@ -127,20 +202,34 @@
             background: #b52a2a;
         }
 
+        /* 상태창 */
         .status {
             margin-top: 18px;
+
             padding: 12px;
+
             background: #111;
+
             color: #00ff66;
+
             border-radius: 8px;
+
             text-align: center;
+
             font-family: monospace;
         }
 
         .track {
             margin-top: 8px;
+
             color: #ddd;
+
             font-size: 12px;
+        }
+
+        /* 실제 오디오 */
+        audio {
+            display: none;
         }
     </style>
 </head>
@@ -149,10 +238,13 @@
 
     <div class="walkman">
 
+        <!-- 제목 -->
         <div class="title">
             Virtual Walkman
         </div>
 
+
+        <!-- 카세트 슬롯 -->
         <div class="cassette-slot">
 
             <div class="cassette" id="cassette">
@@ -169,8 +261,11 @@
 
         </div>
 
+
+        <!-- 버튼 -->
         <div class="controls">
 
+            <!-- 테이프 삽입 -->
             <button onclick="loadTape('tape01.html')">
                 TAPE 01
             </button>
@@ -183,12 +278,25 @@
                 TAPE 03
             </button>
 
+            <!-- 재생 -->
+            <button class="play" onclick="playCurrentTrack()">
+                ▶ PLAY
+            </button>
+
+            <!-- 정지 -->
+            <button class="stop" onclick="audioPlayer.pause()">
+                ■ STOP
+            </button>
+
+            <!-- 꺼내기 -->
             <button class="eject" onclick="ejectTape()">
                 EJECT
             </button>
 
         </div>
 
+
+        <!-- 상태 -->
         <div class="status">
 
             <div id="statusText">
@@ -201,10 +309,14 @@
 
         </div>
 
+
+        <!-- 오디오 플레이어 -->
         <audio id="audioPlayer"></audio>
 
     </div>
 
+
+    <!-- JavaScript -->
     <script src="script.js"></script>
 
 </body>
