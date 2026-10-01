@@ -8,7 +8,6 @@ const statusText = document.getElementById("statusText");
 const trackText = document.getElementById("trackText");
 
 
-// 테이프 넣기
 async function loadTape(tapeFile) {
 
     try {
@@ -19,7 +18,7 @@ async function loadTape(tapeFile) {
         const response = await fetch(tapeFile);
 
         if (!response.ok) {
-            throw new Error("테이프 파일을 불러오지 못했습니다.");
+            throw new Error("테이프 파일을 찾을 수 없습니다.");
         }
 
         const html = await response.text();
@@ -38,24 +37,27 @@ async function loadTape(tapeFile) {
         const title = tapeData.dataset.title || "UNKNOWN TAPE";
 
 
-        // 음악 목록 가져오기
-        const sources = tapeData.querySelectorAll("source");
+        // 음악 파일 목록
+        const sourceElements =
+            tapeData.querySelectorAll("source");
 
         tracks = [];
 
-        sources.forEach(source => {
+        sourceElements.forEach(source => {
 
             const src = source.getAttribute("src");
 
-            if (src) {
-
-                const fullPath = new URL(
-                    src,
-                    new URL(tapeFile, window.location.href)
-                ).href;
-
-                tracks.push(fullPath);
+            if (!src) {
+                return;
             }
+
+            // tape01.html을 기준으로 음악 경로 계산
+            const musicURL = new URL(
+                src,
+                new URL(tapeFile, window.location.href)
+            ).href;
+
+            tracks.push(musicURL);
 
         });
 
@@ -65,24 +67,21 @@ async function loadTape(tapeFile) {
         }
 
 
-        // 현재 테이프 저장
         currentTape = tapeFile;
         currentTrack = 0;
 
-
-        // 화면 변경
         tapeLabel.textContent = title;
-        statusText.textContent = "Playing";
+
+        statusText.textContent = "Ready";
 
         trackText.textContent =
             "Track 1 / " + tracks.length;
 
 
-        // 음악 재생
-        audioPlayer.src = tracks[0];
-        audioPlayer.currentTime = 0;
-
-        await audioPlayer.play();
+        // 기존 음악 제거
+        audioPlayer.pause();
+        audioPlayer.removeAttribute("src");
+        audioPlayer.load();
 
     } catch (error) {
 
@@ -95,21 +94,33 @@ async function loadTape(tapeFile) {
 }
 
 
-// 현재 곡 재생
 async function playCurrentTrack() {
 
     if (tracks.length === 0) {
+
+        statusText.textContent =
+            "Insert a cassette first";
+
         return;
     }
 
-    audioPlayer.src = tracks[currentTrack];
-    audioPlayer.currentTime = 0;
+
+    const musicURL = tracks[currentTrack];
+
+    console.log("재생할 음악:", musicURL);
+
+
+    audioPlayer.src = musicURL;
+
+    audioPlayer.load();
+
 
     trackText.textContent =
         "Track " +
         (currentTrack + 1) +
         " / " +
         tracks.length;
+
 
     try {
 
@@ -121,13 +132,16 @@ async function playCurrentTrack() {
 
         console.error(error);
 
-        statusText.textContent = "Press PLAY";
+        statusText.textContent = "ERROR";
+
+        trackText.textContent =
+            error.message;
 
     }
 }
 
 
-// 곡이 끝났을 때
+// 음악이 끝나면 다음 곡
 audioPlayer.addEventListener("ended", function () {
 
     if (tracks.length === 0) {
@@ -145,12 +159,13 @@ audioPlayer.addEventListener("ended", function () {
 });
 
 
-// 테이프 꺼내기
+// EJECT
 function ejectTape() {
 
     audioPlayer.pause();
 
     audioPlayer.removeAttribute("src");
+
     audioPlayer.load();
 
     currentTape = null;
@@ -158,6 +173,9 @@ function ejectTape() {
     currentTrack = 0;
 
     tapeLabel.textContent = "NO TAPE";
-    statusText.textContent = "No cassette inserted";
+
+    statusText.textContent =
+        "No cassette inserted";
+
     trackText.textContent = "-";
 }
