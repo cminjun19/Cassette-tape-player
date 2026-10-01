@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Virtual Walkman</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            background: #222;
+            font-family: Arial, sans-serif;
+        }
+
+        .player {
+            width: 360px;
+            padding: 30px;
+
+            background: #d8d8d8;
+            border-radius: 18px;
+
+            box-shadow:
+                0 20px 50px rgba(0, 0, 0, 0.5),
+                inset 0 1px 2px rgba(255, 255, 255, 0.8);
+        }
+
+        .player h1 {
+            margin: 0 0 25px;
+            text-align: center;
+
+            font-size: 20px;
+            letter-spacing: 3px;
+        }
+
+        .cassette-slot {
+            width: 100%;
+            height: 190px;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            background: #111;
+            border-radius: 8px;
+
+            overflow: hidden;
+        }
+
+        .cassette {
+            width: 260px;
+            height: 150px;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+
+            background: #dedede;
+            border-radius: 8px;
+
+            color: #222;
+
+            transition: 0.4s;
+        }
+
+        .cassette.empty {
+            background: transparent;
+            color: #777;
+        }
+
+        .reels {
+            display: flex;
+            align-items: center;
+            gap: 70px;
+        }
+
+        .reel {
+            width: 45px;
+            height: 45px;
+
+            border: 7px solid #333;
+            border-radius: 50%;
+        }
+
+        .cassette-title {
+            margin-top: 15px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .status {
+            margin: 20px 0;
+
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 16px;
+
+            border: none;
+            border-radius: 6px;
+
+            background: #333;
+            color: white;
+
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #555;
+        }
+
+        .cassettes {
+            margin-top: 25px;
+        }
+
+        .cassettes h2 {
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .cassette-list {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .cassette-button {
+            padding: 8px 10px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="player">
+
+    <h1>VIRTUAL WALKMAN</h1>
+
+    <div class="cassette-slot">
+
+        <div id="cassette" class="cassette empty">
+            <div class="reels">
+                <div class="reel"></div>
+                <div class="reel"></div>
+            </div>
+
+            <div id="cassetteTitle" class="cassette-title">
+                NO CASSETTE
+            </div>
+        </div>
+
+    </div>
+
+    <div id="status" class="status">
+        카세트를 넣어주세요.
+    </div>
+
+    <div class="controls">
+        <button id="ejectButton">
+            EJECT
+        </button>
+    </div>
+
+    <div class="cassettes">
+
+        <h2>CASSETTES</h2>
+
+        <div class="cassette-list">
+
+            <button class="cassette-button" data-tape="1">
+                TAPE 01
+            </button>
+
+            <button class="cassette-button" data-tape="2">
+                TAPE 02
+            </button>
+
+            <button class="cassette-button" data-tape="3">
+                TAPE 03
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+    const cassette = document.getElementById("cassette");
+    const cassetteTitle = document.getElementById("cassetteTitle");
+    const status = document.getElementById("status");
+    const ejectButton = document.getElementById("ejectButton");
+
+    let currentTape = null;
+
+
+    const tapes = {
+
+        1: {
+            title: "SUMMER TAPE",
+            music: "music/tape01.mp3"
+        },
+
+        2: {
+            title: "NIGHT TAPE",
+            music: "music/tape02.mp3"
+        },
+
+        3: {
+            title: "MEMORIES TAPE",
+            music: "music/tape03.mp3"
+        }
+
+    };
+
+
+    const audio = new Audio();
+
+
+    document.querySelectorAll(".cassette-button").forEach(button => {
+
+        button.addEventListener("click", () => {
+
+            const tapeNumber = button.dataset.tape;
+
+            insertCassette(tapeNumber);
+
+        });
+
+    });
+
+
+    function insertCassette(tapeNumber) {
+
+        const tape = tapes[tapeNumber];
+
+        currentTape = tapeNumber;
+
+        cassette.classList.remove("empty");
+
+        cassetteTitle.textContent = tape.title;
+
+        status.textContent = tape.title + " 삽입됨";
+
+        audio.src = tape.music;
+
+        audio.currentTime = 0;
+
+        audio.play()
+            .then(() => {
+                status.textContent = tape.title + " 재생 중";
+            })
+            .catch(() => {
+                status.textContent =
+                    tape.title + " 삽입됨 - 음악 파일을 추가해주세요.";
+            });
+
+    }
+
+
+    ejectButton.addEventListener("click", () => {
+
+        audio.pause();
+
+        audio.currentTime = 0;
+
+        currentTape = null;
+
+        cassette.classList.add("empty");
+
+        cassetteTitle.textContent = "NO CASSETTE";
+
+        status.textContent = "카세트를 넣어주세요.";
+
+    });
+
+</script>
+
+</body>
+</html>
