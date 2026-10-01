@@ -3,28 +3,464 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Virtual Walkman</title>
+
+    <style>
+        body {
+            margin: 0;
+            background: #222;
+            font-family: Arial, sans-serif;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            min-height: 100vh;
+        }
+
+        .walkman {
+            width: 360px;
+            background: #d6d6d6;
+
+            border-radius: 20px;
+            padding: 25px;
+
+            box-sizing: border-box;
+
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+
+            margin-bottom: 20px;
+        }
+
+        .cassette-slot {
+            width: 100%;
+            height: 180px;
+
+            background: #333;
+
+            border-radius: 10px;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            overflow: hidden;
+        }
+
+        .cassette {
+            width: 240px;
+            height: 120px;
+
+            background: #111;
+
+            border-radius: 8px;
+
+            position: relative;
+
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .reel {
+            width: 50px;
+            height: 50px;
+
+            background: #ddd;
+
+            border-radius: 50%;
+
+            border: 8px solid #777;
+
+            box-sizing: border-box;
+        }
+
+        .tape-label {
+            position: absolute;
+
+            top: 15px;
+            left: 70px;
+            right: 70px;
+
+            height: 30px;
+
+            background: white;
+            color: #111;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .buttons {
+            display: grid;
+
+            grid-template-columns: repeat(3, 1fr);
+
+            gap: 10px;
+
+            margin-top: 20px;
+        }
+
+        button {
+            border: none;
+
+            padding: 12px 5px;
+
+            border-radius: 8px;
+
+            background: #444;
+            color: white;
+
+            cursor: pointer;
+
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #555;
+        }
+
+        .eject {
+            width: 100%;
+
+            margin-top: 10px;
+
+            background: #8b2020;
+        }
+
+        .eject:hover {
+            background: #a52a2a;
+        }
+
+        .status {
+            text-align: center;
+
+            margin-top: 15px;
+
+            font-size: 14px;
+
+            color: #333;
+        }
+
+        .player {
+            margin-top: 15px;
+
+            text-align: center;
+        }
+    </style>
 </head>
 
 <body>
 
-    <h1>Virtual Walkman</h1>
+<div class="walkman">
 
-    <h2>CASSETTE TAPES</h2>
+    <div class="title">
+        Virtual Walkman
+    </div>
 
-    <ul>
-        <li>
-            <a href="tape01.html">TAPE 01</a>
-        </li>
 
-        <li>
-            <a href="tape02.html">TAPE 02</a>
-        </li>
+    <!-- 카세트 슬롯 -->
 
-        <li>
-            <a href="tape03.html">TAPE 03</a>
-        </li>
-    </ul>
+    <div class="cassette-slot">
+
+        <div class="cassette" id="cassette">
+
+            <div class="reel"></div>
+
+            <div class="tape-label" id="tapeLabel">
+                NO TAPE
+            </div>
+
+            <div class="reel"></div>
+
+        </div>
+
+    </div>
+
+
+    <!-- 테이프 선택 -->
+
+    <div class="buttons">
+
+        <button onclick="loadTape('tape01.html')">
+            TAPE 01
+        </button>
+
+        <button onclick="loadTape('tape02.html')">
+            TAPE 02
+        </button>
+
+        <button onclick="loadTape('tape03.html')">
+            TAPE 03
+        </button>
+
+    </div>
+
+
+    <!-- EJECT -->
+
+    <button
+        class="eject"
+        onclick="ejectTape()">
+
+        EJECT
+
+    </button>
+
+
+    <!-- 현재 상태 -->
+
+    <div class="status" id="status">
+        No cassette inserted
+    </div>
+
+
+    <!-- 음악 플레이어 -->
+
+    <div class="player">
+
+        <audio
+            id="audioPlayer"
+            controls
+            style="width: 100%;">
+
+        </audio>
+
+    </div>
+
+</div>
+
+
+<script>
+
+let currentTape = null;
+
+let tracks = [];
+
+let currentTrack = 0;
+
+const audioPlayer =
+    document.getElementById("audioPlayer");
+
+const tapeLabel =
+    document.getElementById("tapeLabel");
+
+const statusText =
+    document.getElementById("status");
+
+const cassette =
+    document.getElementById("cassette");
+
+
+// ================================
+// 테이프 불러오기
+// ================================
+
+async function loadTape(tapeFile) {
+
+    ejectTape();
+
+
+    try {
+
+        const response =
+            await fetch(tapeFile);
+
+        if (!response.ok) {
+
+            throw new Error(
+                "테이프 파일을 찾을 수 없습니다."
+            );
+
+        }
+
+
+        const html =
+            await response.text();
+
+
+        const parser =
+            new DOMParser();
+
+        const documentTape =
+            parser.parseFromString(
+                html,
+                "text/html"
+            );
+
+
+        const tapeData =
+            documentTape.querySelector(
+                "#tape-data"
+            );
+
+
+        if (!tapeData) {
+
+            throw new Error(
+                "테이프 데이터가 없습니다."
+            );
+
+        }
+
+
+        const title =
+            tapeData.dataset.title;
+
+
+        const trackElements =
+            tapeData.querySelectorAll(
+                "audio source"
+            );
+
+
+        tracks = [];
+
+
+        trackElements.forEach(
+            source => {
+
+                tracks.push(
+                    source.getAttribute("src")
+                );
+
+            }
+        );
+
+
+        if (tracks.length === 0) {
+
+            throw new Error(
+                "노래가 없습니다."
+            );
+
+        }
+
+
+        currentTape = tapeFile;
+
+        currentTrack = 0;
+
+
+        tapeLabel.textContent =
+            title;
+
+        statusText.textContent =
+            title;
+
+
+        cassette.style.display =
+            "flex";
+
+
+        playCurrentTrack();
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        statusText.textContent =
+            "테이프를 불러오지 못했습니다.";
+
+    }
+
+}
+
+
+// ================================
+// 현재 곡 재생
+// ================================
+
+function playCurrentTrack() {
+
+    if (
+        tracks.length === 0 ||
+        currentTrack >= tracks.length
+    ) {
+        return;
+    }
+
+
+    audioPlayer.src =
+        tracks[currentTrack];
+
+    audioPlayer.play()
+        .catch(() => {
+
+            console.log(
+                "브라우저에서 자동 재생이 차단되었습니다."
+            );
+
+        });
+
+}
+
+
+// ================================
+// 곡이 끝나면 다음 곡
+// ================================
+
+audioPlayer.addEventListener(
+    "ended",
+    function() {
+
+        currentTrack++;
+
+        if (
+            currentTrack < tracks.length
+        ) {
+
+            playCurrentTrack();
+
+        }
+
+    }
+);
+
+
+// ================================
+// EJECT
+// ================================
+
+function ejectTape() {
+
+    audioPlayer.pause();
+
+    audioPlayer.removeAttribute(
+        "src"
+    );
+
+    audioPlayer.load();
+
+
+    currentTape = null;
+
+    tracks = [];
+
+    currentTrack = 0;
+
+
+    tapeLabel.textContent =
+        "NO TAPE";
+
+    statusText.textContent =
+        "No cassette inserted";
+
+}
+
+</script>
 
 </body>
 </html>
