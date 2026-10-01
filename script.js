@@ -13,10 +13,13 @@ async function loadTape(tapeFile) {
 
     try {
 
+        statusText.textContent = "Loading...";
+        trackText.textContent = "-";
+
         const response = await fetch(tapeFile);
 
         if (!response.ok) {
-            throw new Error("테이프 파일을 불러올 수 없습니다.");
+            throw new Error("테이프 파일을 불러오지 못했습니다.");
         }
 
         const html = await response.text();
@@ -30,10 +33,12 @@ async function loadTape(tapeFile) {
             throw new Error("테이프 데이터가 없습니다.");
         }
 
+
         // 테이프 이름
         const title = tapeData.dataset.title || "UNKNOWN TAPE";
 
-        // 음악 목록
+
+        // 음악 목록 가져오기
         const sources = tapeData.querySelectorAll("source");
 
         tracks = [];
@@ -44,7 +49,6 @@ async function loadTape(tapeFile) {
 
             if (src) {
 
-                // tape HTML 기준으로 음악 경로를 정확하게 변환
                 const fullPath = new URL(
                     src,
                     new URL(tapeFile, window.location.href)
@@ -55,50 +59,75 @@ async function loadTape(tapeFile) {
 
         });
 
+
         if (tracks.length === 0) {
             throw new Error("음악 파일이 없습니다.");
         }
 
+
+        // 현재 테이프 저장
         currentTape = tapeFile;
         currentTrack = 0;
 
+
+        // 화면 변경
         tapeLabel.textContent = title;
         statusText.textContent = "Playing";
 
-        playCurrentTrack();
+        trackText.textContent =
+            "Track 1 / " + tracks.length;
+
+
+        // 음악 재생
+        audioPlayer.src = tracks[0];
+        audioPlayer.currentTime = 0;
+
+        await audioPlayer.play();
 
     } catch (error) {
 
         console.error(error);
 
-        statusText.textContent = "Tape Error";
+        statusText.textContent = "ERROR";
         trackText.textContent = error.message;
 
     }
 }
 
 
-// 현재 음악 재생
-function playCurrentTrack() {
+// 현재 곡 재생
+async function playCurrentTrack() {
 
     if (tracks.length === 0) {
         return;
     }
 
     audioPlayer.src = tracks[currentTrack];
+    audioPlayer.currentTime = 0;
 
     trackText.textContent =
-        "Track " + (currentTrack + 1) + " / " + tracks.length;
+        "Track " +
+        (currentTrack + 1) +
+        " / " +
+        tracks.length;
 
-    audioPlayer.play()
-        .catch(error => {
-            console.log("자동 재생이 차단되었습니다.", error);
-            statusText.textContent = "Ready";
-        });
+    try {
+
+        await audioPlayer.play();
+
+        statusText.textContent = "Playing";
+
+    } catch (error) {
+
+        console.error(error);
+
+        statusText.textContent = "Press PLAY";
+
+    }
 }
 
 
-// 음악이 끝났을 때 다음 곡
+// 곡이 끝났을 때
 audioPlayer.addEventListener("ended", function () {
 
     if (tracks.length === 0) {
@@ -107,7 +136,6 @@ audioPlayer.addEventListener("ended", function () {
 
     currentTrack++;
 
-    // 마지막 곡이면 첫 곡으로
     if (currentTrack >= tracks.length) {
         currentTrack = 0;
     }
