@@ -3,128 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Virtual Walkman</title>
 
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
-            background: #222;
-            font-family: Arial, sans-serif;
-
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-
-            min-height: 100vh;
+            background: #222;
+            font-family: Arial, sans-serif;
         }
 
         .walkman {
             width: 360px;
+            padding: 20px;
             background: #d6d6d6;
-
             border-radius: 20px;
-            padding: 25px;
-
-            box-sizing: border-box;
-
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
         }
 
         .title {
             text-align: center;
-            font-size: 24px;
+            font-size: 22px;
             font-weight: bold;
-
-            margin-bottom: 20px;
+            margin-bottom: 18px;
+            color: #222;
         }
 
         .cassette-slot {
             width: 100%;
-            height: 180px;
-
-            background: #333;
-
+            height: 190px;
+            padding: 15px;
+            background: #222;
             border-radius: 10px;
-
             display: flex;
             justify-content: center;
             align-items: center;
-
-            overflow: hidden;
         }
 
         .cassette {
-            width: 240px;
-            height: 120px;
-
-            background: #111;
-
-            border-radius: 8px;
-
             position: relative;
-
+            width: 260px;
+            height: 150px;
+            background: #111;
+            border-radius: 8px;
+            border: 3px solid #444;
             display: flex;
-            justify-content: space-around;
+            justify-content: space-between;
             align-items: center;
+            padding: 25px;
         }
 
         .reel {
-            width: 50px;
-            height: 50px;
-
-            background: #ddd;
-
+            width: 58px;
+            height: 58px;
             border-radius: 50%;
+            background: #777;
+            border: 8px solid #333;
+            position: relative;
+        }
 
-            border: 8px solid #777;
-
-            box-sizing: border-box;
+        .reel::after {
+            content: "";
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #222;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
 
         .tape-label {
             position: absolute;
-
-            top: 15px;
-            left: 70px;
-            right: 70px;
-
-            height: 30px;
-
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 105px;
+            padding: 8px 4px;
             background: white;
             color: #111;
-
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
-            font-size: 11px;
+            text-align: center;
+            font-size: 12px;
             font-weight: bold;
+            border-radius: 3px;
+            overflow: hidden;
+            white-space: nowrap;
         }
 
-        .buttons {
-            display: grid;
-
-            grid-template-columns: repeat(3, 1fr);
-
-            gap: 10px;
-
+        .controls {
             margin-top: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
         }
 
         button {
+            padding: 12px;
             border: none;
-
-            padding: 12px 5px;
-
             border-radius: 8px;
-
-            background: #444;
+            background: #333;
             color: white;
-
+            font-size: 14px;
             cursor: pointer;
-
-            font-weight: bold;
         }
 
         button:hover {
@@ -132,335 +120,92 @@
         }
 
         .eject {
-            width: 100%;
-
-            margin-top: 10px;
-
             background: #8b2020;
         }
 
         .eject:hover {
-            background: #a52a2a;
+            background: #b52a2a;
         }
 
         .status {
+            margin-top: 18px;
+            padding: 12px;
+            background: #111;
+            color: #00ff66;
+            border-radius: 8px;
             text-align: center;
-
-            margin-top: 15px;
-
-            font-size: 14px;
-
-            color: #333;
+            font-family: monospace;
         }
 
-        .player {
-            margin-top: 15px;
-
-            text-align: center;
+        .track {
+            margin-top: 8px;
+            color: #ddd;
+            font-size: 12px;
         }
     </style>
 </head>
 
 <body>
 
-<div class="walkman">
+    <div class="walkman">
 
-    <div class="title">
-        Virtual Walkman
-    </div>
+        <div class="title">
+            Virtual Walkman
+        </div>
 
+        <div class="cassette-slot">
 
-    <!-- 카세트 슬롯 -->
+            <div class="cassette" id="cassette">
 
-    <div class="cassette-slot">
+                <div class="reel" id="reelLeft"></div>
 
-        <div class="cassette" id="cassette">
+                <div class="tape-label" id="tapeLabel">
+                    NO TAPE
+                </div>
 
-            <div class="reel"></div>
+                <div class="reel" id="reelRight"></div>
 
-            <div class="tape-label" id="tapeLabel">
-                NO TAPE
             </div>
-
-            <div class="reel"></div>
 
         </div>
 
-    </div>
+        <div class="controls">
 
+            <button onclick="loadTape('tape01.html')">
+                TAPE 01
+            </button>
 
-    <!-- 테이프 선택 -->
+            <button onclick="loadTape('tape02.html')">
+                TAPE 02
+            </button>
 
-    <div class="buttons">
+            <button onclick="loadTape('tape03.html')">
+                TAPE 03
+            </button>
 
-        <button onclick="loadTape('tape01.html')">
-            TAPE 01
-        </button>
+            <button class="eject" onclick="ejectTape()">
+                EJECT
+            </button>
 
-        <button onclick="loadTape('tape02.html')">
-            TAPE 02
-        </button>
+        </div>
 
-        <button onclick="loadTape('tape03.html')">
-            TAPE 03
-        </button>
+        <div class="status">
 
-    </div>
+            <div id="statusText">
+                No cassette inserted
+            </div>
 
+            <div class="track" id="trackText">
+                -
+            </div>
 
-    <!-- EJECT -->
+        </div>
 
-    <button
-        class="eject"
-        onclick="ejectTape()">
-
-        EJECT
-
-    </button>
-
-
-    <!-- 현재 상태 -->
-
-    <div class="status" id="status">
-        No cassette inserted
-    </div>
-
-
-    <!-- 음악 플레이어 -->
-
-    <div class="player">
-
-        <audio
-            id="audioPlayer"
-            controls
-            style="width: 100%;">
-
-        </audio>
+        <audio id="audioPlayer"></audio>
 
     </div>
 
-</div>
-
-
-<script>
-
-let currentTape = null;
-
-let tracks = [];
-
-let currentTrack = 0;
-
-const audioPlayer =
-    document.getElementById("audioPlayer");
-
-const tapeLabel =
-    document.getElementById("tapeLabel");
-
-const statusText =
-    document.getElementById("status");
-
-const cassette =
-    document.getElementById("cassette");
-
-
-// ================================
-// 테이프 불러오기
-// ================================
-
-async function loadTape(tapeFile) {
-
-    ejectTape();
-
-
-    try {
-
-        const response =
-            await fetch(tapeFile);
-
-        if (!response.ok) {
-
-            throw new Error(
-                "테이프 파일을 찾을 수 없습니다."
-            );
-
-        }
-
-
-        const html =
-            await response.text();
-
-
-        const parser =
-            new DOMParser();
-
-        const documentTape =
-            parser.parseFromString(
-                html,
-                "text/html"
-            );
-
-
-        const tapeData =
-            documentTape.querySelector(
-                "#tape-data"
-            );
-
-
-        if (!tapeData) {
-
-            throw new Error(
-                "테이프 데이터가 없습니다."
-            );
-
-        }
-
-
-        const title =
-            tapeData.dataset.title;
-
-
-        const trackElements =
-            tapeData.querySelectorAll(
-                "audio source"
-            );
-
-
-        tracks = [];
-
-
-        trackElements.forEach(
-            source => {
-
-                tracks.push(
-                    source.getAttribute("src")
-                );
-
-            }
-        );
-
-
-        if (tracks.length === 0) {
-
-            throw new Error(
-                "노래가 없습니다."
-            );
-
-        }
-
-
-        currentTape = tapeFile;
-
-        currentTrack = 0;
-
-
-        tapeLabel.textContent =
-            title;
-
-        statusText.textContent =
-            title;
-
-
-        cassette.style.display =
-            "flex";
-
-
-        playCurrentTrack();
-
-
-    } catch (error) {
-
-        console.error(error);
-
-        statusText.textContent =
-            "테이프를 불러오지 못했습니다.";
-
-    }
-
-}
-
-
-// ================================
-// 현재 곡 재생
-// ================================
-
-function playCurrentTrack() {
-
-    if (
-        tracks.length === 0 ||
-        currentTrack >= tracks.length
-    ) {
-        return;
-    }
-
-
-    audioPlayer.src =
-        tracks[currentTrack];
-
-    audioPlayer.play()
-        .catch(() => {
-
-            console.log(
-                "브라우저에서 자동 재생이 차단되었습니다."
-            );
-
-        });
-
-}
-
-
-// ================================
-// 곡이 끝나면 다음 곡
-// ================================
-
-audioPlayer.addEventListener(
-    "ended",
-    function() {
-
-        currentTrack++;
-
-        if (
-            currentTrack < tracks.length
-        ) {
-
-            playCurrentTrack();
-
-        }
-
-    }
-);
-
-
-// ================================
-// EJECT
-// ================================
-
-function ejectTape() {
-
-    audioPlayer.pause();
-
-    audioPlayer.removeAttribute(
-        "src"
-    );
-
-    audioPlayer.load();
-
-
-    currentTape = null;
-
-    tracks = [];
-
-    currentTrack = 0;
-
-
-    tapeLabel.textContent =
-        "NO TAPE";
-
-    statusText.textContent =
-        "No cassette inserted";
-
-}
-
-</script>
+    <script src="script.js"></script>
 
 </body>
 </html>
